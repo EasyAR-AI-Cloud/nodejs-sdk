@@ -1,7 +1,7 @@
 'use strict';
 
 var argv = require('yargs')
-    .usage('Usage: $0 [image] -t [host] -c [keys]')
+    .usage('Usage: $0 <image> [hand|body] [-t host] [-c keys]')
     .demand(1)
     .default('t', 'http://ai-api.easyar.com:8080').alias('t', 'host')
     .default('c', 'keys.json').alias('c', 'keys')
@@ -16,7 +16,7 @@ var gtype  = argv._[1];
 var host = argv.host;
 var keys = JSON.parse(fs.readFileSync(argv.keys));
 
-var gesture = require('./gesture')(host, keys.appKey, keys.appSecret);
+var gesture = require('./gesture')(host, keys.aiKey, keys.aiSecret);
 
 if(gtype && gtype=="body"){
     gesture.body({

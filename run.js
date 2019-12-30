@@ -16,12 +16,13 @@ var gtype  = argv._[1];
 var host = argv.host;
 var keys = JSON.parse(fs.readFileSync(argv.keys));
 
-var gesture = require('./gesture')(host, keys.aiKey, keys.aiSecret);
+var gesture = require('./gesture')(host, keys);
+var jsonBody = {
+    'image': fs.readFileSync(imageFn).toString('base64')
+}
 
 if(gtype && gtype=="body"){
-    gesture.body({
-        'image': fs.readFileSync(imageFn).toString('base64')
-    })
+    gesture.body(jsonBody)
     .then(function(resp) {
         console.log(resp.result);
     })
@@ -29,9 +30,7 @@ if(gtype && gtype=="body"){
         console.log(err);
     });
 }else {
-    gesture.hand({
-        'image': fs.readFileSync(imageFn).toString('base64')
-    })
+    gesture.hand(jsonBody)
     .then(function(resp) {
         console.log(JSON.stringify(resp));
     })

@@ -10,10 +10,29 @@ function genSign(params, appSecret) {
     return crypto.createHash('sha256').update(paramsStr).digest('hex');
 }
 
-exports.signParams = function(params, timestamp, appKey, appSecret) {
-    params.timestamp = timestamp;
-    params.aiKey = appKey;
-    params.signature = genSign(params, appSecret);
-
+// Deprecated
+function signParamsByAppkey(keypair, params) {
+    params = params || {};
+    params.timestamp = new Date().getTime();
+    params.aiKey = keypair.aiKey;
+    params.signature = genSign(params, keypair.aiSecret);
     return params;
 };
+
+function signParamsByAPIKeys(keypair, params) {
+    params = params || {};
+    params.timestamp = new Date().getTime();
+    params.appId = keypair.appId;
+    params.apiKey = keypair.apiKey;
+    params.signature = genSign(params, keypair.apiSecret);
+    return params;
+};
+
+function getUACToken(keypair, params) {
+    params = params || {};
+    params.timestamp = new Date().getTime();
+    params.appId = keypair.appId;
+    return params;
+};
+
+exports.signParams =  signParamsByAPIKeys;

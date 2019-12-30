@@ -6,16 +6,7 @@ Q.longStackSupport = true;
 
 var auth = require('./auth');
 
-function gestureClient(host, appKey, appSecret) {
-
-    function signParams(params) {
-        params = params || {};
-        return auth.signParams(params,
-            new Date().getTime(),
-            appKey,
-            appSecret
-        );
-    }
+function gestureClient(host, keypair) {
 
     function errorJson(json) {
         return new Error(JSON.stringify(json, null, 2));
@@ -41,19 +32,36 @@ function gestureClient(host, appKey, appSecret) {
     }
 
     function body(target) {
-        var retbody = Q.promise(function(resolve, reject) {
+        return Q.promise(function(resolve, reject) {
             request.post(host + '/v1/pose/body')
-            .send(signParams(target))
+            .send(auth.signParams(keypair, target))
             .end(done(resolve, reject));
         });
-        return retbody;
     }
 
 
     function hand(image) {
         return Q.promise(function(resolve, reject) {
             request.post(host + '/v1/pose/hand')
-            .send(signParams(image))
+            .send(auth.signParams(keypair, image))
+            .end(done(resolve, reject));
+        });
+    }
+
+    function handToken(body, token) {
+        return Q.promise(function(resolve, reject) {
+            request.post(host + '/v1/pose/hand')
+            .set('Authorization', token)
+            .send(body)
+            .end(done(resolve, reject));
+        });
+    }
+
+    function bodyToken(body, token) {
+        return Q.promise(function(resolve, reject) {
+            request.post(host + '/v1/pose/body')
+            .set('Authorization', token)
+            .send(body)
             .end(done(resolve, reject));
         });
     }
@@ -62,7 +70,9 @@ function gestureClient(host, appKey, appSecret) {
     return {
         ping: ping,
         body: body,
-        hand: hand
+        hand: hand,
+        bodyToken: bodyToken,
+        handToken: handToken
     };
 
 }
